@@ -25,7 +25,7 @@ function addMember() {
             "Engineer",
             "Manager"
         ],
-        
+
     },
     {
         type: "input",
@@ -37,55 +37,69 @@ function addMember() {
         message: "Enter the email associated with team member",
         name: "email"
     }])
-    .then(function({name, role, id, email}) {
-        let roleReturn = "";
-        if (role === "Intern") {
-            roleReturn = "school name";
-        } else if (role === "Engineer") {
-            roleReturn = "Github username";
-        } else {
-            roleReturn = "office phone number";
-        }
-        inquirer.prompt([{
-            type: "input",
-            message: `Enter ${roleReturn} associated with team member`,
-            name: "roleReturn"
-        },
-        {
-            type: "list",
-            message: "Would you like to add more team members?",
-            name: "addTeamMember",
-            choices: [
-                "yes",
-                "no"
-            ],
-            
-        }])
-        .then(function({roleReturn, addTeamMember}) {
-            let newMember;
+        .then(function ({ name, role, id, email }) {
+            let roleReturn = "";
             if (role === "Intern") {
-                newMember = new Intern(name, id, email, roleReturn);
+                roleReturn = "school name";
             } else if (role === "Engineer") {
-                newMember = new Engineer(name, id, email, roleReturn);
+                roleReturn = "Github username";
             } else {
-                newMember = new Manager(name, id, email, roleReturn);
+                roleReturn = "office phone number";
             }
-            employees.push(newMember);
-            render(newMember)
-            .then(function() {
-                if (addTeamMember === "yes") {
-                    addMember();
-                } else {
-                    fs.appendFile(outputPath, function (err) {
-                        if (err) {
-                            console.log(err);
+            inquirer.prompt([{
+                type: "input",
+                message: `Enter ${roleReturn} associated with team member`,
+                name: "roleReturn"
+            },
+            {
+                type: "list",
+                message: "Would you like to add more team members?",
+                name: "addTeamMember",
+                choices: [
+                    "yes",
+                    "no"
+                ],
+
+            }])
+                .then(function ({ roleReturn, addTeamMember }) {
+                    let newMember;
+                    if (role === "Intern") {
+                        newMember = new Intern(name, id, email, roleReturn);
+                    } else if (role === "Engineer") {
+                        newMember = new Engineer(name, id, email, roleReturn);
+                    } else {
+                        newMember = new Manager(name, id, email, roleReturn);
+                    }
+                    employees.push(newMember);
+                    console.log(employees);
+                        if (addTeamMember === "yes") {
+                            addMember();
+                        } else{
+                            buildSquad();
+                            console.log('Team Members added to team.html');
                         };
-                    });
-                    console.log("Team Members added and created in team.html");
-                }
-            });
+                        // else {
+                        //     somekindoffunction();
+                        //     console.log("team members created");
+                        //     // fs.appendFile(outputPath, function (err) {
+                        //     //     if (err) {
+                        //     //         console.log(err);
+                        //     //     };
+                        //     // });
+                        //     // console.log("Team Members added and created in team.html");
+                        // }
+                });
         });
-    });
 };
+
+
+
+function buildSquad() {
+    if(!fs.existsSync(OUTPUT_DIR)){
+        fs.mkdirSync(OUTPUT_DIR)
+    };
+    fs.writeFileSync(outputPath, render(employees));
+
+}
 
 addMember();
